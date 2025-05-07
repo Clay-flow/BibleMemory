@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Memorization Bible Test</title>
+        <link rel="stylesheet" href="mem.css">
+        <style>
+            /* General styles */
+            body {
+                font-family: 'Arial', sans-serif;
+                background: linear-gradient(to right, #6a11cb, #2575fc);
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                color: #ffffff;
+            }
+
+            .container {
+                background-color: #ffffff;
+                color: #333333;
+                border-radius: 10px;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+                padding: 30px 40px;
+                max-width: 900px;
+                width: 100%;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+                margin-bottom: 20px;
+                color: #333333;
+            }
+
+            #display-text {
+                font-size: 1.2rem;
+                line-height: 1.8;
+                color: #555555;
+                margin-bottom: 30px;
+                text-align: justify;
+            }
+
+            .blank-input {
+                border: 2px solid #cccccc;
+                border-radius: 5px;
+                padding: 8px 12px;
+                font-size: 1rem;
+                margin: 0 5px;
+                width: 120px;
+                box-sizing: border-box;
+                transition: border-color 0.3s ease, background-color 0.3s ease;
+            }
+
+            .blank-input:focus {
+                border-color: #2575fc;
+                background-color: #f0f8ff;
+                outline: none;
+            }
+
+            #test-form {
+                margin-top: 20px;
+            }
+
+            button[type="submit"] {
+                background-color: #2575fc;
+                color: #ffffff;
+                border: none;
+                border-radius: 5px;
+                padding: 12px 25px;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: background-color 0.3s ease, transform 0.2s ease;
+            }
+
+            button[type="submit"]:hover {
+                background-color: #1a5bbf;
+                transform: scale(1.05);
+            }
+
+            #result {
+                margin-top: 20px;
+                font-size: 1.2rem;
+                font-weight: bold;
+                color: #333333;
+            }
+
+            /* Responsive design */
+            @media (max-width: 768px) {
+                .container {
+                    padding: 20px;
+                }
+
+                h1 {
+                    font-size: 2rem;
+                }
+
+                #display-text {
+                    font-size: 1rem;
+                }
+
+                .blank-input {
+                    width: 100px;
+                }
+
+                button[type="submit"] {
+                    font-size: 0.9rem;
+                    padding: 10px 20px;
+                }
+            }
+        </style>
+        <script defer>
+            document.addEventListener("DOMContentLoaded", () => {
+                const displayText = document.getElementById("display-text");
+                const originalText = displayText.textContent.trim();
+                const words = originalText.split(" ");
+                const numberOfBlanks = Math.floor(words.length * 0.2); // Replace 20% of the words
+
+                // Create a new container for the updated text
+                const updatedTextContainer = document.createElement("div");
+
+                // Randomly replace words with input fields
+                const replacedIndices = new Set(); // To avoid replacing the same word multiple times
+                while (replacedIndices.size < numberOfBlanks) {
+                    const randomIndex = Math.floor(Math.random() * words.length);
+                    if (!replacedIndices.has(randomIndex)) {
+                        replacedIndices.add(randomIndex);
+
+                        // Create an input field
+                        const inputField = document.createElement("input");
+                        inputField.type = "text";
+                        inputField.className = "blank-input";
+                        inputField.setAttribute("data-answer", words[randomIndex]);
+                        inputField.placeholder = "...";
+
+                        // Replace the word with the input field in the container
+                        updatedTextContainer.appendChild(inputField);
+                        updatedTextContainer.appendChild(document.createTextNode(" "));
+                    } else {
+                        // Append the word as plain text
+                        updatedTextContainer.appendChild(document.createTextNode(words[randomIndex] + " "));
+                    }
+                }
+
+                // Replace the content of the displayText element
+                displayText.innerHTML = "";
+                displayText.appendChild(updatedTextContainer);
+
+                // Add event listener to the form
+                const form = document.getElementById("test-form");
+                form.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const inputs = document.querySelectorAll(".blank-input");
+                    let correctCount = 0;
+
+                    inputs.forEach((input) => {
+                        const userAnswer = input.value.trim();
+                        const correctAnswer = input.getAttribute("data-answer");
+                        if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+                            input.style.borderColor = "green";
+                            correctCount++;
+                        } else {
+                            input.style.borderColor = "red";
+                        }
+                    });
+
+                    // Calculate percentage
+                    const totalInputs = inputs.length;
+                    const percentage = ((correctCount / totalInputs) * 100).toFixed(2);
+
+                    // Display the result
+                    const result = document.getElementById("result");
+                    result.textContent = `You got ${correctCount} out of ${totalInputs} correct (${percentage}%)!`;
+                });
+
+                // Add event listener to move to the next input on "Enter"
+                const inputs = document.querySelectorAll(".blank-input");
+                inputs.forEach((input, index) => {
+                    input.addEventListener("keydown", (e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            const nextInput = inputs[index + 1];
+                            if (nextInput) {
+                                nextInput.focus();
+                            }
+                        }
+                    });
+                });
+            });
+
+            function remove() {
+                const aTags = document.getElementsByTagName("a");
+                for (let i = 0; i < aTags.length; i++) {
+                    aTags[i].style.display = "none";
+                }
+            }
+
+            // Call the function to remove all <a> tags
+            remove();
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Bible Memorization</h1>
+            <div id="display-text">
+                <p>Trust in the Lord with all your heart and lean not on your own understanding In all your ways acknowledge Him and He shall direct your paths Do not be wise in your own eyes Fear the Lord and depart from evil It will be health to your flesh and strength to your bones My son do not despise the chastening of the Lord nor detest His correction For whom the Lord loves He corrects just as a father the son in whom he delights Happy is the man who finds wisdom and the man who gains understanding For her proceeds are better than the profits of silver and her gain than fine gold She is more precious than rubies and all the things you may desire cannot compare with her The Lord by wisdom founded the earth By understanding He established the heavens My son let them not depart from your eyes keep sound wisdom and discretion So they will be life to your soul and grace to your neck</p>
+            </div>
+            <form id="test-form">
+                <button type="submit">Submit</button>
+            </form>
+            <div id="result"></div>
+        </div>
+    </body>
+</html>
